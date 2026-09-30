@@ -2,7 +2,7 @@
   "runtime": "canvas-v1",
   "name": "Practice",
   "description": "Suivre une seule habitude sur sept jours. Un clic suffit à marquer la journée, sur cet appareil.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "entry": "dist/assets/addon.js",
   "thumbnail": "assets/thumbnail.png",
   "deviceSettingsVersion": "1",

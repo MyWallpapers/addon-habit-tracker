@@ -2,6 +2,7 @@ import type { CanvasAddonMountContext } from "../generated/mywallpaper-runtime";
 import { card, el } from "./ui";
 import { timer } from "./timing";
 import "./style.css";
+import { deviceWriter } from "./device-write";
 export function mount(context: CanvasAddonMountContext) {
   const view = card(context, "Habitude"),
     title = el("div", "", "quote"),
@@ -9,7 +10,9 @@ export function mount(context: CanvasAddonMountContext) {
     toggle = el("button", "Fait aujourd’hui");
   view.body.append(title, days, toggle);
   let values = context.layer.settings.get(),
-    state = context.layer.deviceSettings.get();
+    state = context.layer.deviceSettings.get(),
+    pending = false,
+    error = "";
   const key = (date: Date) =>
     date.getFullYear() +
     "-" +
@@ -48,8 +51,23 @@ export function mount(context: CanvasAddonMountContext) {
     toggle.textContent = dates.has(key(now))
       ? "Retirer aujourd’hui"
       : "Fait aujourd’hui";
-    view.caption.textContent = "Un petit geste, régulièrement.";
+    toggle.disabled = pending;
+    view.caption.textContent = error || "Un petit geste, régulièrement.";
+    view.caption.classList.toggle("error", Boolean(error));
   };
+  const writer = deviceWriter(
+    context,
+    (next) => {
+      state = next;
+      render();
+    },
+    (busy, message) => {
+      pending = busy;
+      error = message;
+      render();
+    },
+    "Habitude non enregistrée",
+  );
   const change = () => {
     const dates = new Set(
         String(state.dates || "")
@@ -58,11 +76,7 @@ export function mount(context: CanvasAddonMountContext) {
       ),
       today = key(new Date());
     dates.has(today) ? dates.delete(today) : dates.add(today);
-    state = { dates: [...dates].sort().slice(-366).join("\n") };
-    render();
-    void context.layer.deviceSettings.set(state).catch(() => {
-      view.caption.textContent = "Habitude non enregistrée";
-    });
+    writer.write({ dates: [...dates].sort().slice(-366).join("\n") });
   };
   toggle.onclick = change;
   const stop = context.layer.settings.subscribe((next) => {
@@ -77,6 +91,7 @@ export function mount(context: CanvasAddonMountContext) {
     stopTimer = timer(context, render, 60000);
   render();
   return () => {
+    writer.dispose();
     stop();
     stopDevice();
     action();
