@@ -1,0 +1,32 @@
+{
+  "runtime": "canvas-v1",
+  "name": "Practice",
+  "description": "Suivre une seule habitude sur sept jours. Un clic suffit à marquer la journée, sur cet appareil.",
+  "version": "0.1.0",
+  "entry": "dist/assets/addon.js",
+  "thumbnail": "assets/thumbnail.png",
+  "deviceSettingsVersion": "1",
+  "ui": {
+    "pointerEvents": "auto"
+  },
+  "settings": [
+    {
+      "id": "habit",
+      "type": "string",
+      "label": "Habitude",
+      "default": "Lire vingt minutes"
+    },
+    {
+      "id": "today",
+      "type": "button",
+      "buttonLabel": "Marquer / Retirer aujourd’hui"
+    },
+    {
+      "id": "dates",
+      "type": "textarea",
+      "label": "Jours réalisés (AAAA-MM-JJ, un par ligne)",
+      "default": "",
+      "scope": "device"
+    }
+  ]
+}
